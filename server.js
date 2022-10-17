@@ -4,12 +4,33 @@ const morgan = require("morgan");
 const bodyparser = require("body-parser");
 const path = require("path");
 const connectDB=require('./server/database/connection')
+const cors=require("cors")
+
+const corsOpts = {
+  origin: '*',
+
+  methods: [
+    'GET',
+    'POST',
+    'PUT',
+    'DELETE'
+  ],
+
+  allowedHeaders: [
+    'Content-Type',
+  ],
+};
+
+
+
+
 
 const app = express();
+app.use(cors(corsOpts));
 
 //It is present in root direcctory so don't need to give any relative path as second argument
 dotenv.config({ path: "config.env" });
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT;
 
 //log requests
 app.use(morgan("tiny"));
@@ -18,7 +39,8 @@ app.use(morgan("tiny"));
 connectDB();
 
 //parse request to body-parser
-app.use(bodyparser.urlencoded({ extended: true }));
+// app.use(bodyparser.urlencoded({ extended: true }));
+app.use(express.json())
 
 //set view engine
 app.set("view engine", "ejs");
