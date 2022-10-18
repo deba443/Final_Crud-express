@@ -22,9 +22,6 @@ const corsOpts = {
 };
 
 
-
-
-
 const app = express();
 app.use(cors(corsOpts));
 
@@ -41,6 +38,10 @@ connectDB();
 //parse request to body-parser
 // app.use(bodyparser.urlencoded({ extended: true }));
 app.use(express.json())
+// app.use((req,res,next)=>{
+//   console.log("HTTP Method - "+req.method+",URL-"+req.url)
+//   next();
+// });
 
 //set view engine
 app.set("view engine", "ejs");

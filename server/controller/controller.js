@@ -1,12 +1,12 @@
 const { send } = require("process");
 let Userdb = require("../model/model");
-let User=require("../model/user")
-const bcrypt=require('bcrypt')
-const SECRET_KEY="NOTESAPI"
-const jwt=require("jsonwebtoken")
+let User = require("../model/user")
+const bcrypt = require('bcrypt')
+const SECRET_KEY = "NOTESAPI"
+const jwt = require("jsonwebtoken")
 
 
-exports.createUser=async (req,res)=>{
+exports.createUser = async (req, res) => {
   //Existing user check
   //Hashed password
   //User creation
@@ -14,60 +14,61 @@ exports.createUser=async (req,res)=>{
   // if(req.body==={}){
   //   return
   // }
-  const {username,email,password}=req.body;
-  if(!req.body){
-    res.status(400).send({ message: "Content can not be empty" });
-    return;
+  const { username, email, password } = req.body;
+  // if(!req.body){
+  //   res.status(400).send({ message: "Content can not be empty" });
+  //   return;
+  // }
+  try {
+    console.log(req.body)
+    // return res.status("OK")
+    // console.log(req.body)
+    const existingUser = await User.findOne({ email: email })
+    if (existingUser) {
+      return res.status(400).json({ message: 'user already exists' })
+    }
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const result = await User.create({
+      email: email,
+      password: hashedPassword,
+      username: username
+    })
+    // const token=jwt.sign({email:result.email,id:result._id},SECRET_KEY)
+    res.status(201).json({ user: result })
   }
-  try{
-      // console.log(req.body)
-      // return res.status("OK")
-      console.log(req.body)
-      const existingUser=await User.findOne({email:email})
-      if(existingUser){
-        return res.status(400).json({message:'user already exists'})
-      }
-      const hashedPassword=await bcrypt.hash(password,10);
-      const result=await User.create({
-        email:email,
-        password:hashedPassword,
-        username:username
-      })
-      const token=jwt.sign({email:result.email,id:result._id},SECRET_KEY)
-      res.status(201).json({user:result,token:token})
+  catch (err) {
+    // console.log("deba")
+    console.log(err)
+    res.status(500).json({ message: 'Something went wrong' })
   }
-  catch(err){
-      // console.log("deba")
-      console.log(err)
-      res.status(500).json({message:'Something went wrong'})
-  }
-  
+
 
 }
 
-exports.signUser=async (req,res)=>{
+exports.signUser = async (req, res) => {
   if (!req.body) {
     res.status(400).send({ message: "Content can not be empty" });
     return;
   }
-  const {email,password}=req.body;
-  try{
-    const existingUser=await User.findOne({email:email})
-    if(!existingUser){
-      return res.status(404).json({message:'user not found'})
+  const { email, password } = req.body;
+  try {
+    const existingUser = await User.findOne({ email: email })
+    if (!existingUser) {
+      return res.status(404).json({ message: 'user not found' })
     }
-    const matchPassword=await bcrypt.compare(password,existingUser.password)
+    const matchPassword = await bcrypt.compare(password, existingUser.password)
     // console.log(req.body,existingUser.password,matchPassword,hashedPassword)
-    if(!matchPassword){
-      res.status(404).send({message:"Invalid credential"});
+    if (!matchPassword) {
+      res.status(404).send({ message: "Invalid credential" });
     }
-    const token=jwt.sign({email:existingUser.email,id:existingUser._id},SECRET_KEY)
-    res.status(201).send({user:existingUser,token:token})
+    const token = jwt.sign({ email: existingUser.email, id: existingUser._id }, SECRET_KEY, { expiresIn: '20d' })
+    console.log(existingUser)
+    res.status(201).send({ user: existingUser, token: token })
 
   }
-  catch(err){
+  catch (err) {
     console.log(err)
-    res.status(500).json({message:"something went wrong"});
+    res.status(500).json({ message: "something went wrong" });
 
   }
 

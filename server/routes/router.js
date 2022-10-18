@@ -2,6 +2,7 @@ const express = require("express");
 const route = express.Router();
 const services=require('../services/render')
 const controller=require('../controller/controller')
+const auth=require('../middleware/auth')
 
 /**
  * @description Root Route
@@ -30,13 +31,13 @@ route.get("/update-user", services.update_user);
 
 
 //API
-route.post('/api/users',controller.create);
-route.get('/api/users',controller.find);
-route.put('/api/users/:id',controller.update);
-route.delete('/api/users/:id',controller.delete);
+route.post('/api/users',auth,controller.create);
+route.get('/api/users',auth,controller.find);
+route.put('/api/users/:id',auth,controller.update);
+route.delete('/api/users/:id',auth,controller.delete);
 route.post('/api/signup',controller.createUser);
 route.post('/api/signin',controller.signUser);
 // route.get('/api/signup',controller.getUser)
 
 
-module.exports=route
+module.exports=route;
