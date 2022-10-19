@@ -34,12 +34,12 @@ exports.createUser = async (req, res) => {
       username: username
     })
     // const token=jwt.sign({email:result.email,id:result._id},SECRET_KEY)
-    res.status(201).json({ user: result })
+    return res.status(201).json({ user: result })
   }
   catch (err) {
     // console.log("deba")
     console.log(err)
-    res.status(500).json({ message: 'Something went wrong' })
+    return res.status(500).json({ message: 'Something went wrong' })
   }
 
 
@@ -59,16 +59,16 @@ exports.signUser = async (req, res) => {
     const matchPassword = await bcrypt.compare(password, existingUser.password)
     // console.log(req.body,existingUser.password,matchPassword,hashedPassword)
     if (!matchPassword) {
-      res.status(404).send({ message: "Invalid credential" });
+      return res.status(404).send({ message: "Invalid credential" });
     }
     const token = jwt.sign({ email: existingUser.email, id: existingUser._id }, SECRET_KEY, { expiresIn: '20d' })
     console.log(existingUser)
-    res.status(201).send({ user: existingUser, token: token })
+    return res.status(201).send({ user: existingUser, token: token })
 
   }
   catch (err) {
     console.log(err)
-    res.status(500).json({ message: "something went wrong" });
+    return res.status(500).json({ message: "something went wrong" });
 
   }
 

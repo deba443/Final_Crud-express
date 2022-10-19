@@ -3,8 +3,8 @@ const dotenv = require("dotenv");
 const morgan = require("morgan");
 const bodyparser = require("body-parser");
 const path = require("path");
-const connectDB=require('./server/database/connection')
-const cors=require("cors")
+const connectDB = require('./server/database/connection')
+const cors = require("cors")
 
 const corsOpts = {
   origin: '*',
@@ -18,12 +18,14 @@ const corsOpts = {
 
   allowedHeaders: [
     'Content-Type',
+    'Authorization'
   ],
 };
 
 
 const app = express();
 app.use(cors(corsOpts));
+app.options('*', cors())
 
 //It is present in root direcctory so don't need to give any relative path as second argument
 dotenv.config({ path: "config.env" });
@@ -38,8 +40,11 @@ connectDB();
 //parse request to body-parser
 // app.use(bodyparser.urlencoded({ extended: true }));
 app.use(express.json())
-// app.use((req,res,next)=>{
-//   console.log("HTTP Method - "+req.method+",URL-"+req.url)
+// app.use((req, res, next) => {
+//   res.setHeader("Access-Control-Allow-Origin", "*");
+//   res.setHeader("Access-Control-Allow-Credentials", "true");
+//   res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+//   res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
 //   next();
 // });
 
@@ -47,9 +52,9 @@ app.use(express.json())
 app.set("view engine", "ejs");
 
 //load assests
-app.use('/css',express.static(path.resolve(__dirname,'assests/css')))
+app.use('/css', express.static(path.resolve(__dirname, 'assests/css')))
 // css/style.css
-app.use('/js',express.static(path.resolve(__dirname,'assests/js')))
+app.use('/js', express.static(path.resolve(__dirname, 'assests/js')))
 //This is the default rout means localhost:3000 and when the url will match with root route then this call back function will  execute
 // app.get("/", (req, res) => {
 //   res.render("index");
@@ -63,7 +68,7 @@ app.use('/js',express.static(path.resolve(__dirname,'assests/js')))
 // })
 
 //load assests
-app.use('/',require('./server/routes/router'))
+app.use('/', require('./server/routes/router'))
 //we are going to listen in all these in 3000 port
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
