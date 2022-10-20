@@ -4,6 +4,26 @@ let User = require("../model/user")
 const bcrypt = require('bcrypt')
 const SECRET_KEY = "NOTESAPI"
 const jwt = require("jsonwebtoken")
+const multer=require("multer");
+const { fileLoader } = require("ejs");
+const upload=multer({dest:'uploads/'})
+
+
+
+// exports.upload=async (req,res)=>{
+  // const {file}=req.body;
+  // try{
+  //   console.log(req.body)
+  //   const existingFile=await User.findOne{{email:email}}
+
+  // }
+  // catch(err){
+  //   console.log(err)
+  //   return res.status(500).json({ message: 'Something went wrong' })
+  // }
+// }
+
+
 
 
 exports.createUser = async (req, res) => {
@@ -15,14 +35,12 @@ exports.createUser = async (req, res) => {
   //   return
   // }
   const { username, email, password } = req.body;
-  // if(!req.body){
-  //   res.status(400).send({ message: "Content can not be empty" });
-  //   return;
-  // }
+  console.log(req.file)
   try {
-    console.log(req.body)
+    // console.log(req.body)
     // return res.status("OK")
     // console.log(req.body)
+    // console.log(req.file)
     const existingUser = await User.findOne({ email: email })
     if (existingUser) {
       return res.status(400).json({ message: 'user already exists' })
@@ -31,9 +49,11 @@ exports.createUser = async (req, res) => {
     const result = await User.create({
       email: email,
       password: hashedPassword,
-      username: username
+      username: username,
+      profilepicture:req.file.path
     })
     // const token=jwt.sign({email:result.email,id:result._id},SECRET_KEY)
+    console.log(result)
     return res.status(201).json({ user: result })
   }
   catch (err) {
@@ -50,7 +70,8 @@ exports.signUser = async (req, res) => {
     res.status(400).send({ message: "Content can not be empty" });
     return;
   }
-  const { email, password } = req.body;
+  const { email, password,profilepicture } = req.body;
+  // console.log(profilepicture)
   try {
     const existingUser = await User.findOne({ email: email })
     if (!existingUser) {
@@ -62,7 +83,7 @@ exports.signUser = async (req, res) => {
       return res.status(404).send({ message: "Invalid credential" });
     }
     const token = jwt.sign({ email: existingUser.email, id: existingUser._id }, SECRET_KEY, { expiresIn: '20d' })
-    console.log(existingUser)
+    // console.log(existingUser)
     return res.status(201).send({ user: existingUser, token: token })
 
   }
@@ -81,7 +102,7 @@ exports.create = (req, res) => {
     return;
   }
   //new user
-  console.log(req.body)
+  // console.log(req.body)
   // return res.send("OK")
   const user = new Userdb({
     name: req.body.name,

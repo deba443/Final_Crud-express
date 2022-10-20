@@ -11,7 +11,10 @@ let schema=new mongoose.Schema({
         unique:true,
     },
     gender:String,
-    status:String
+    status:String,
+    // fileName:{
+    //     type:File,
+    // }
 })
 
 const Userdb=mongoose.model('userdb',schema);

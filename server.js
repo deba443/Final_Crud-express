@@ -34,6 +34,9 @@ const PORT = process.env.PORT;
 //log requests
 app.use(morgan("tiny"));
 
+//available upload static folder publically
+app.use('/uploads',express.static('uploads'))
+
 //mongodb connection
 connectDB();
 

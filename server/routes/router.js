@@ -3,6 +3,34 @@ const route = express.Router();
 const services=require('../services/render')
 const controller=require('../controller/controller')
 const auth=require('../middleware/auth')
+const multer=require("multer")
+// const upload=multer({dest:'uploads/'})
+const storage=multer.diskStorage({
+    destination:function(req,file,cb){
+        cb(null,'./uploads/',);
+    },
+    filename:function(req,file,cb){
+        cb(null,new Date().toISOString()+file.originalname)
+    }
+})
+ const fileFilter=(req,file,cb)=>{
+    //reject a file
+    if(file.mimetype==='image/jpeg' || file.mimetype==='image/png'){
+        cb(null,true)
+    }
+    else{
+        cb(null,false)
+    }
+    //accept a file
+ }
+
+const upload=multer({
+    storage:storage,
+    limits:{
+    fileSize:1024*1024*5
+    },
+    fileFilter:fileFilter,
+})
 
 /**
  * @description Root Route
@@ -35,8 +63,9 @@ route.post('/api/users',auth,controller.create);
 route.get('/api/users',auth,controller.find);
 route.put('/api/users/:id',auth,controller.update);
 route.delete('/api/users/:id',auth,controller.delete);
-route.post('/api/signup',controller.createUser);
+route.post('/api/signup',upload.single('profilepicture'),controller.createUser)
 route.post('/api/signin',controller.signUser);
+// route.post('/api/users/upload',auth,controller.upload)
 // route.get('/api/signup',controller.getUser)
 
 
