@@ -4,27 +4,39 @@ let User = require("../model/user")
 const bcrypt = require('bcrypt')
 const SECRET_KEY = "NOTESAPI"
 const jwt = require("jsonwebtoken")
-const multer=require("multer");
+const multer = require("multer");
 const { fileLoader } = require("ejs");
-const upload=multer({dest:'uploads/'})
+const upload = multer({ dest: 'uploads/' })
+const cloudinary = require('cloudinary').v2
 
 
 
 // exports.upload=async (req,res)=>{
-  // const {file}=req.body;
-  // try{
-  //   console.log(req.body)
-  //   const existingFile=await User.findOne{{email:email}}
+// const {file}=req.body;
+// try{
+//   console.log(req.body)
+//   const existingFile=await User.findOne{{email:email}}
 
-  // }
-  // catch(err){
-  //   console.log(err)
-  //   return res.status(500).json({ message: 'Something went wrong' })
-  // }
+// }
+// catch(err){
+//   console.log(err)
+//   return res.status(500).json({ message: 'Something went wrong' })
+// }
 // }
 
 
+// const result = cloudinary.uploader.upload('uploads/16666681240362017-12-08T10:04:01.873Zchristmas.jpg',{
+//   use_filename:true,
+//   folder:'images',
+//   unique_filename:false,
+// },(err,image)=>{
+//   if(err){
+//     console.log(err)
+//   }
+//   console.log("file uploaded")
+//   console.log(image)
 
+// })
 
 exports.createUser = async (req, res) => {
   //Existing user check
@@ -35,24 +47,47 @@ exports.createUser = async (req, res) => {
   //   return
   // }
   const { username, email, password } = req.body;
-  console.log(req.file)
+  // console.log(req.file)
   try {
-    // console.log(req.body)
+
     // return res.status("OK")
     // console.log(req.body)
     // console.log(req.file)
+    //upload image to cloudinary
+    // console.log('deba')
+
+    // console.log('deba')
+    // return res.json(result)
+    // console.log(result)
+    // console.log(req.file.path)
+    // res.json(resul,deba)
     const existingUser = await User.findOne({ email: email })
     if (existingUser) {
       return res.status(400).json({ message: 'user already exists' })
     }
     const hashedPassword = await bcrypt.hash(password, 12);
+    const imageURL = await cloudinary.uploader.upload(req.file.path,{
+      use_filename:true,
+      folder:'images',
+      unique_filename:false,
+    },(err,image)=>{
+      if(err){
+        console.log(err)
+      }
+      console.log("file uploaded")
+      console.log(image)
+    
+    })
     const result = await User.create({
       email: email,
       password: hashedPassword,
       username: username,
-      profilepicture:req.file.path
+      // profilepicture: {
+      //   public_id: result.public_id,
+      //   url: result.secure_url
+      // }
+      profilepicture:imageURL.url
     })
-    // const token=jwt.sign({email:result.email,id:result._id},SECRET_KEY)
     console.log(result)
     return res.status(201).json({ user: result })
   }
@@ -70,7 +105,7 @@ exports.signUser = async (req, res) => {
     res.status(400).send({ message: "Content can not be empty" });
     return;
   }
-  const { email, password,profilepicture } = req.body;
+  const { email, password, profilepicture } = req.body;
   // console.log(profilepicture)
   try {
     const existingUser = await User.findOne({ email: email })

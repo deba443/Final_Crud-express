@@ -15,11 +15,16 @@ const userSchema=new mongoose.Schema({
     },
     profilepicture:{
         type:String,
-        // required:true,
+        required:true,
+        // public_id:{
+        //     type:String,
+        //     required:true
+        // },
+        // url:{
+        //     type:String,
+        //     required:true
+        // }
     }
-    // fileName:{
-    //     type:File,
-    // }
 },{timestamps:true});
 const User=mongoose.model('user',userSchema);
 module.exports=User;
